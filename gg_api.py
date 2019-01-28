@@ -2,7 +2,7 @@
 
 import json
 import nltk
-#nltk.download('stopwords')
+nltk.download('stopwords')
 from nltk.tokenize import RegexpTokenizer
 from nltk.corpus import stopwords
 
@@ -48,7 +48,7 @@ def pre_ceremony():
     plain text file. It is the first thing the TA will run when grading.
     Do NOT change the name of this function or what it returns.'''
     # Your code here
-    print "Pre-ceremony processing complete."
+    print ("Pre-ceremony processing complete.")
     return
 
 def main():
@@ -78,10 +78,12 @@ def parsing(filename):
     for tweet in data:
         text = tweet['text']  
         words = tknzr.tokenize(text)
+        tweetText = []
         for w in words:
             w = w.lower()
             if w not in stop_words :
-                word_list.append(w)
+                tweetText.append(w)
+        word_list.append(tweetText)
     return word_list
 
 if __name__ == '__main__':
