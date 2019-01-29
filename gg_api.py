@@ -2,6 +2,8 @@
 
 import json
 import nltk
+import re
+from heapq import nlargest
 nltk.download('stopwords')
 from nltk.tokenize import RegexpTokenizer
 from nltk.corpus import stopwords
@@ -9,11 +11,38 @@ from nltk.corpus import stopwords
 
 OFFICIAL_AWARDS = ['cecil b. demille award', 'best motion picture - drama', 'best performance by an actress in a motion picture - drama', 'best performance by an actor in a motion picture - drama', 'best motion picture - comedy or musical', 'best performance by an actress in a motion picture - comedy or musical', 'best performance by an actor in a motion picture - comedy or musical', 'best animated feature film', 'best foreign language film', 'best performance by an actress in a supporting role in a motion picture', 'best performance by an actor in a supporting role in a motion picture', 'best director - motion picture', 'best screenplay - motion picture', 'best original score - motion picture', 'best original song - motion picture', 'best television series - drama', 'best performance by an actress in a television series - drama', 'best performance by an actor in a television series - drama', 'best television series - comedy or musical', 'best performance by an actress in a television series - comedy or musical', 'best performance by an actor in a television series - comedy or musical', 'best mini-series or motion picture made for television', 'best performance by an actress in a mini-series or motion picture made for television', 'best performance by an actor in a mini-series or motion picture made for television', 'best performance by an actress in a supporting role in a series, mini-series or motion picture made for television', 'best performance by an actor in a supporting role in a series, mini-series or motion picture made for television']
 
-def get_hosts(year):
+
+# Finds either a single host or 2 hosts (cohosts) in a list of strings
+def get_hosts(tweets):
     '''Hosts is a list of one or more strings. Do NOT change the name
     of this function or what it returns.'''
     # Your code here
-    return hosts
+
+    corpus = tweets
+    hostMentions = {}
+
+    for tweet in corpus:
+    	if "open" in tweet:
+
+    		regex_match = re.findall("[A-Z][a-z]* [A-Z][a-z]*", tweet)
+
+    		for match in regex_match:
+    			if not match in hostMentions:
+    				hostMentions[match] = 1
+    			else:
+    				num = hostMentions.get(match)
+    				num = num + 1
+    				update = {match : num}
+    				hostMentions.update(update)
+    hosts = nlargest(2, hostMentions, key=hostMentions.get)
+
+    freq1 = hostMentions.get(hosts[0])
+    freq2 = hostMentions.get(hosts[1])
+
+    if freq2 / (freq1 + freq2) > .4:
+    	return hosts
+    else:
+    	return [hosts[0]]
 
 def get_awards(year):
     '''Awards is a list of strings. Do NOT change the name
@@ -58,18 +87,22 @@ def main():
     run when grading. Do NOT change the name of this function or
     what it returns.'''
     # Your code here
+    
 
-    corpus13 = parsing('gg2013.json')
-    corpus15 = parsing('gg2015.json')
+    #corpus13 = parsing('gg2013.json')
+    #print (corpus13)
+    print (get_hosts(hostParse('gg2013.json')))
+    #corpus15 = parsing('gg2015.json')
 
     return
+
 
 def parsing(filename):
     with open(filename) as data_file:
         data = json.load(data_file)
 
     stop_words = stopwords.words('english')
-    track=['gg','golden globes', 'golden globe', 'goldenglobe','goldenglobes','gg2015','gg15','goldenglobe2015','goldenglobe15','goldenglobes2015','goldenglobes15', 'gg2013','gg13','goldenglobe2013','goldenglobe13','goldenglobes2013','goldenglobes13', 'rt' ]
+    track=['Golden', 'Globes', 'gg','golden globes', 'golden globe', 'goldenglobe','goldenglobes','gg2015','gg15','goldenglobe2015','goldenglobe15','goldenglobes2015','goldenglobes15', 'gg2013','gg13','goldenglobe2013','goldenglobe13','goldenglobes2013','goldenglobes13', 'rt' ]
     stop_words.extend(track)
     tknzr = RegexpTokenizer(r'\w+')
 
@@ -78,11 +111,33 @@ def parsing(filename):
     for tweet in data:
         text = tweet['text']  
         words = tknzr.tokenize(text)
-        tweetText = []
+        tweetText = ""
         for w in words:
-            w = w.lower()
-            if w not in stop_words :
-                tweetText.append(w)
+            if w not in stop_words:
+                tweetText += w + " "
+        word_list.append(tweetText)
+    return word_list
+
+
+## Need to parse without using stop words for finding the Host (still need the GG specific words)
+def hostParse(filename):
+    with open(filename) as data_file:
+        data = json.load(data_file)
+
+    
+    track=['Golden', 'Globes', 'gg','golden globes', 'golden globe', 'goldenglobe','goldenglobes','gg2015','gg15','goldenglobe2015','goldenglobe15','goldenglobes2015','goldenglobes15', 'gg2013','gg13','goldenglobe2013','goldenglobe13','goldenglobes2013','goldenglobes13', 'rt' ]
+    
+    tknzr = RegexpTokenizer(r'\w+')
+
+    word_list = []
+    
+    for tweet in data:
+        text = tweet['text']  
+        words = tknzr.tokenize(text)
+        tweetText = ""
+        for w in words:
+            if w not in track:
+                tweetText += w + " "
         word_list.append(tweetText)
     return word_list
 
