@@ -34,7 +34,7 @@ def get_hosts(tweets):
     				num = num + 1
     				update = {match : num}
     				hostMentions.update(update)
-    hosts = nlargest(2, hostMentions, key=hostMentions.get)
+    hosts = nlargest(3, hostMentions, key=hostMentions.get)
 
     freq1 = hostMentions.get(hosts[0])
     freq2 = hostMentions.get(hosts[1])
@@ -91,7 +91,7 @@ def main():
 
     #corpus13 = parsing('gg2013.json')
     #print (corpus13)
-    print (get_hosts(hostParse('gg2013.json')))
+    print (get_hosts(hostParse('gg2015.json')))
     #corpus15 = parsing('gg2015.json')
 
     return
