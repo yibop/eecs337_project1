@@ -25,7 +25,7 @@ def get_hosts(tweets):
 
 
     for tweet in corpus:
-        if 'open' in tweet:
+        if 'monologue' in tweet:
             word = ""
             for w in tweet:
                 word += w + " "
@@ -43,7 +43,7 @@ def get_hosts(tweets):
 
     freq1 = hostMentions.get(hosts[0])
     freq2 = hostMentions.get(hosts[1])
-
+    print (hostMentions)
     if freq2 / (freq1 + freq2) > .4:
         return hosts
     else:
