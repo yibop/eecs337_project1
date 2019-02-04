@@ -19,32 +19,33 @@ def get_hosts(tweets):
     # Your code here
 
     corpus = tweets
+
     hostMentions = {}
 
     for tweet in corpus:
-    	if "open" in tweet:
+        if "open" in tweet:
 
-    		regex_match = re.findall("[A-Z][a-z]* [A-Z][a-z]*", tweet)
+            regex_match = re.findall("[A-Z][a-z]* [A-Z][a-z]*", tweet)
 
-    		for match in regex_match:
-    			if not match in hostMentions:
-    				hostMentions[match] = 1
-    			else:
-    				num = hostMentions.get(match)
-    				num = num + 1
-    				update = {match : num}
-    				hostMentions.update(update)
-    hosts = nlargest(3, hostMentions, key=hostMentions.get)
+            for match in regex_match:
+                if not match in hostMentions:
+                    hostMentions[match] = 1
+                else:
+                    num = hostMentions.get(match)
+                    num = num + 1
+                    update = {match : num}
+                    hostMentions.update(update)
+    hosts = nlargest(2, hostMentions, key=hostMentions.get)
 
     freq1 = hostMentions.get(hosts[0])
     freq2 = hostMentions.get(hosts[1])
 
     if freq2 / (freq1 + freq2) > .4:
-    	return hosts
+        return hosts
     else:
-    	return [hosts[0]]
+        return [hosts[0]]
 
-def get_awards(year):
+def get_awards(tweets):
     '''Awards is a list of strings. Do NOT change the name
     of this function or what it returns.'''
     # Your code here
@@ -57,11 +58,45 @@ def get_nominees(year):
     # Your code here
     return nominees
 
-def get_winner(year):
+def get_winner(tweets):
     '''Winners is a dictionary with the hard coded award
     names as keys, and each entry containing a single string.
     Do NOT change the name of this function or what it returns.'''
     # Your code here
+
+    winners = {}
+    personName = {}
+    corpus = tweets
+
+
+    for award in OFFICIAL_AWARDS:
+        winners[award] = ""
+
+    award_words = ['best', 'motion picture', 'winner', 'drama', 'performance', 'actress', 'actor', 'comedy', 'feature', 'film', 'foreign', 'language', 'musical', 'animated', 'supporting', 'role', 'director', 'screenplay', 'original', 'score', 'song', 'television', 'series', 'mini-series', 'miniseries', 'Best', 'Motion', 'picture', 'motion', 'Picture', 'Winner', 'Drama', 'Performance', 'Actress', 'Actor', 'Comedy', 'Feature', 'Film', 'Foreign', 'Language', 'Musical', 'Animated', 'Supporting', 'Role', 'Director', 'Screenplay', 'Original', 'Score', 'Song', 'Television', 'Series', 'Mini-series', 'Miniseries']
+
+    for tweet in corpus:
+        if len(set(award_words).intersection(set(tweet))) >= 2:
+            for word in tweet:
+                if word in award_words:
+                    tweet[:] = [x for x in tweet if x not in award_words]
+            tweetText = ""
+            for w in tweet:
+                tweetText += w + " "
+
+            regex_match = re.findall("[A-Z][a-z]* [A-Z][a-z]*", tweetText)
+
+            for match in regex_match:
+                if not match in personName:
+                    personName[match] = 1
+                else:
+                    num = personName.get(match)
+                    num = num + 1
+                    update = {match : num}
+                    personName.update(update)
+    hosts = nlargest(24, personName, key=personName.get)
+
+    print (hosts)
+
     return winners
 
 def get_presenters(year):
@@ -88,11 +123,9 @@ def main():
     what it returns.'''
     # Your code here
     
-
-    #corpus13 = parsing('gg2013.json')
-    #print (corpus13)
-    print (get_hosts(hostParse('gg2015.json')))
-    #corpus15 = parsing('gg2015.json')
+    
+    #print ((hostParse('gg2013.json')))
+    get_winner(parsing('gg2013.json'))
 
     return
 
@@ -101,9 +134,9 @@ def parsing(filename):
     with open(filename) as data_file:
         data = json.load(data_file)
 
-    stop_words = stopwords.words('english')
-    track=['Golden', 'Globes', 'gg','golden globes', 'golden globe', 'goldenglobe','goldenglobes','gg2015','gg15','goldenglobe2015','goldenglobe15','goldenglobes2015','goldenglobes15', 'gg2013','gg13','goldenglobe2013','goldenglobe13','goldenglobes2013','goldenglobes13', 'rt' ]
-    stop_words.extend(track)
+    #stop_words = stopwords.words('english')
+    stop_words =['RT', 'http', 'Golden', 'Globes', 'GoldenGlobes', 'gg','golden globes', 'golden globe', 'goldenglobe','goldenglobes','gg2015','gg15','goldenglobe2015','goldenglobe15','goldenglobes2015','goldenglobes15', 'gg2013','gg13','goldenglobe2013','goldenglobe13','goldenglobes2013','goldenglobes13', 'rt' ]
+    #stop_words.extend(track)
     tknzr = RegexpTokenizer(r'\w+')
 
     word_list = []
@@ -111,10 +144,10 @@ def parsing(filename):
     for tweet in data:
         text = tweet['text']  
         words = tknzr.tokenize(text)
-        tweetText = ""
+        tweetText = []
         for w in words:
             if w not in stop_words:
-                tweetText += w + " "
+                tweetText.append(w)
         word_list.append(tweetText)
     return word_list
 
