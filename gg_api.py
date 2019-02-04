@@ -22,10 +22,14 @@ def get_hosts(tweets):
 
     hostMentions = {}
 
-    for tweet in corpus:
-        if "open" in tweet:
 
-            regex_match = re.findall("[A-Z][a-z]* [A-Z][a-z]*", tweet)
+
+    for tweet in corpus:
+        if 'open' in tweet:
+            word = ""
+            for w in tweet:
+                word += w + " "
+            regex_match = re.findall("[A-Z][a-z]* [A-Z][a-z]*", word)
 
             for match in regex_match:
                 if not match in hostMentions:
@@ -123,9 +127,10 @@ def main():
     what it returns.'''
     # Your code here
     
+    parse = parsing('gg2013.json')
+    print (get_hosts(parse))
+    get_winner(parse)
     
-    #print ((hostParse('gg2013.json')))
-    get_winner(parsing('gg2013.json'))
 
     return
 
@@ -153,6 +158,8 @@ def parsing(filename):
 
 
 ## Need to parse without using stop words for finding the Host (still need the GG specific words)
+# Don't need this, changed implementation to only use other parsing method
+'''
 def hostParse(filename):
     with open(filename) as data_file:
         data = json.load(data_file)
@@ -173,6 +180,7 @@ def hostParse(filename):
                 tweetText += w + " "
         word_list.append(tweetText)
     return word_list
+    '''
 
 if __name__ == '__main__':
     main()
