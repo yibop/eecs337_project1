@@ -9,7 +9,32 @@ from nltk.tokenize import RegexpTokenizer
 from nltk.corpus import stopwords
 
 
-OFFICIAL_AWARDS = ['cecil b. demille award', 'best motion picture - drama', 'best performance by an actress in a motion picture - drama', 'best performance by an actor in a motion picture - drama', 'best motion picture - comedy or musical', 'best performance by an actress in a motion picture - comedy or musical', 'best performance by an actor in a motion picture - comedy or musical', 'best animated feature film', 'best foreign language film', 'best performance by an actress in a supporting role in a motion picture', 'best performance by an actor in a supporting role in a motion picture', 'best director - motion picture', 'best screenplay - motion picture', 'best original score - motion picture', 'best original song - motion picture', 'best television series - drama', 'best performance by an actress in a television series - drama', 'best performance by an actor in a television series - drama', 'best television series - comedy or musical', 'best performance by an actress in a television series - comedy or musical', 'best performance by an actor in a television series - comedy or musical', 'best mini-series or motion picture made for television', 'best performance by an actress in a mini-series or motion picture made for television', 'best performance by an actor in a mini-series or motion picture made for television', 'best performance by an actress in a supporting role in a series, mini-series or motion picture made for television', 'best performance by an actor in a supporting role in a series, mini-series or motion picture made for television']
+OFFICIAL_AWARDS = ['cecil b. demille award', 
+                    'best motion picture - drama',
+                    'best performance by an actress in a motion picture - drama',
+                    'best performance by an actor in a motion picture - drama',
+                    'best motion picture - comedy or musical', 
+                    'best performance by an actress in a motion picture - comedy or musical',
+                    'best performance by an actor in a motion picture - comedy or musical',
+                    'best animated feature film',
+                    'best foreign language film',
+                    'best performance by an actress in a supporting role in a motion picture',
+                    'best performance by an actor in a supporting role in a motion picture',
+                    'best director - motion picture',
+                    'best screenplay - motion picture',
+                    'best original score - motion picture',
+                    'best original song - motion picture',
+                    'best television series - drama',
+                    'best performance by an actress in a television series - drama',
+                    'best performance by an actor in a television series - drama',
+                    'best television series - comedy or musical',
+                    'best performance by an actress in a television series - comedy or musical',
+                    'best performance by an actor in a television series - comedy or musical',
+                    'best mini-series or motion picture made for television',
+                    'best performance by an actress in a mini-series or motion picture made for television',
+                    'best performance by an actor in a mini-series or motion picture made for television',
+                    'best performance by an actress in a supporting role in a series, mini-series or motion picture made for television',
+                    'best performance by an actor in a supporting role in a series, mini-series or motion picture made for television']
 
 
 # Finds either a single host or 2 hosts (cohosts) in a list of strings
@@ -40,11 +65,11 @@ def get_hosts(tweets):
                     update = {match : num}
                     hostMentions.update(update)
     hosts = nlargest(2, hostMentions, key=hostMentions.get)
-
+    #print (hostMentions)
     freq1 = hostMentions.get(hosts[0])
     freq2 = hostMentions.get(hosts[1])
     
-    if freq2 / (freq1 + freq2) > .4:
+    if freq2 / (freq1 + freq2) > .3:
         return hosts
     else:
         return [hosts[0]]
@@ -123,31 +148,31 @@ def get_winner(tweets):
     winners = {}
     
     condenseAwards = ['cecil demille award',
-                        'motion picture drama',
-                        'motion actress picture',
-                        'motion actor picture',
-                        'picture comedy musical motion',
+                        'best motion picture drama',
+                        'best performace actress drama',
+                        'best performace actor drama',
+                        'best motion picture comedy musical',
                         'actress comedy musical performance',
                         'actor comedy musical performace',
                         'animated feature film',
                         'foreign language film',
                         'supporting actress best',
-                        'best supposrting actor',
+                        'best supporting actor',
                         'best director',
                         'best screenplay',
-                        'best original score',
+                        'best score',
                         'best original song',
-                        'best television series',
-                        'actress television series',
-                        'actor television series',
-                        'television series comedy musical',
-                        'actress television mucial comedy',
-                        'actor television musical comedy',
-                        'mini picture for television',
-                        'actress mini picture television',
-                        'actor mini picture television',
-                        'actress supporting television',
-                        'actor supporting television']
+                        'best TV series',
+                        'actress TV series',
+                        'actor TV series',
+                        'TV series comedy musical',
+                        'actress TV mucial comedy',
+                        'actor TV musical comedy',
+                        'TV mini series picture',
+                        'actress mini picture TV',
+                        'actor mini picture TV',
+                        'actress supporting TV series',
+                        'actor supporting TV series']
 
     personName = {}
     corpus = tweets
@@ -162,7 +187,7 @@ def get_winner(tweets):
             if len(set(nominee).intersection(set(tweet))) >= 0:
                 index = 0
                 try:
-                    index = tweet.index('for')
+                    index = 0 #tweet.index('for')
                 except:
                     index = 0
                 if index > 0:
@@ -171,61 +196,74 @@ def get_winner(tweets):
                 filteredTweets.append(tweet)
                     
 
-    peopleAwards = ['director', 'actor', 'actress', 'cecile']
-    stopWords = ['Nshowbiz', 'Best']
+    peopleAwards = ['director', 'actor', 'actress', 'cecil', 'Director', 'Actor', 'Actress', 'Cecil']
+    ignore = ['Nshowbiz', 'Best', 'Q','W','E','R','T','Y','U','I','O','P','A','S','D','F','G','H','J','K','L','Z','X','C','V','B','N','M']
+    #award_words.extend(ignore)
     for award in condenseAwards:
         personName = {}
         award_parse = award.split(' ')
         key = len(award_parse)
         if len(set(peopleAwards).intersection(set(award_parse))) >= 1:
             for tweet in filteredTweets:
+                
                 if len(set(award_parse).intersection(set(tweet))) >= key - 1:
                     #print(award_parse)
-                    #tweet[:] = [x for x in tweet if x not in award_words]
+                    #tweet[:] = [x for x in tweet if x not in ignore]
                     tweetText = ""
                     for w in tweet:
-                        if w != 'Nshowbiz':
-                            tweetText += w + " "
+                        tweetText += w + " "
                     #print (tweetText)
 
 
                     regex_match = re.findall("[A-Z][a-z]* [A-Z][a-z]*", tweetText)
 
                     for match in regex_match:
-                        #print (match)
-                        if not match in personName:
-                            personName[match] = 1
-                        else:
-                            num = personName.get(match)
-                            num = num + 1
-                            update = {match : num}
-                            personName.update(update)
+                        if match not in ignore:
+                            if not match in personName:
+                                personName[match] = 1
+                            else:
+                                num = personName.get(match)
+                                num = num + 1
+                                update = {match : num}
+                                personName.update(update)
             awardWinner = nlargest(1, personName, key=personName.get)
             print (award + " won by ")
             print (awardWinner)
         else:
             for tweet in filteredTweets:
+                
                 if len(set(award_parse).intersection(set(tweet))) >= key - 1:
                     #print(award_parse)
-                    #tweet[:] = [x for x in tweet if x not in award_words]
+                    #tweet[:] = [x for x in tweet if x not in ignore]
                     tweetText = ""
                     for w in tweet:
-                        if w != 'Nshowbiz':
-                            tweetText += w + " "
+                        tweetText += w + " "
                     #print (tweetText)
 
 
                     regex_match = re.findall("[A-Z][a-z]*", tweetText)
 
                     for match in regex_match:
-                        #print (match)
-                        if not match in personName:
-                            personName[match] = 1
-                        else:
-                            num = personName.get(match)
-                            num = num + 1
-                            update = {match : num}
-                            personName.update(update)
+                        if match not in ignore:
+                            if not match in personName:
+                                personName[match] = 1
+                            else:
+                                num = personName.get(match)
+                                num = num + 1
+                                update = {match : num}
+                                personName.update(update)
+
+                    regex_match = re.findall("[A-Z][a-z]* [A-Z][a-z]*", tweetText)
+
+                    for match in regex_match:
+                        if match not in ignore:
+                            if not match in personName:
+                                personName[match] = 1
+                            else:
+                                num = personName.get(match)
+                                num = num + 1
+                                update = {match : num}
+                                personName.update(update)
             awardWinner = nlargest(1, personName, key=personName.get)
             print (award + " won by ")
             print (awardWinner)
@@ -256,10 +294,10 @@ def main():
     what it returns.'''
     # Your code here
     
-    parse = parsing('gg2013.json')
+    parse = parsing('gg2015.json')
     print (get_hosts(parse))
     get_winner(parse)
-    get_nominees(parse)
+    #get_nominees(parse)
     
 
     return
@@ -271,7 +309,7 @@ def parsing(filename):
 
     #If you want to remove stop words, do so inside the function call
     #stop_words = stopwords.words('english')
-    stop_words =['RT', 'http', 'Golden', 'Globes', 'GoldenGlobes', 'gg','golden globes', 'golden globe', 'goldenglobe','goldenglobes','gg2015','gg15','goldenglobe2015','goldenglobe15','goldenglobes2015','goldenglobes15', 'gg2013','gg13','goldenglobe2013','goldenglobe13','goldenglobes2013','goldenglobes13', 'rt' ]
+    stop_words =['RT', 'CNNshowbiz', 'http', 'Golden', 'Globes', 'GoldenGlobes', 'gg','golden globes', 'golden globe', 'goldenglobe','goldenglobes','gg2015','gg15','goldenglobe2015','goldenglobe15','goldenglobes2015','goldenglobes15', 'gg2013','gg13','goldenglobe2013','goldenglobe13','goldenglobes2013','goldenglobes13', 'rt' ]
     #stop_words.extend(track)
     tknzr = RegexpTokenizer(r'\w+')
 
