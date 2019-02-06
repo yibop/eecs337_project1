@@ -9,6 +9,7 @@ from nltk.tokenize import RegexpTokenizer
 from nltk.corpus import stopwords
 
 
+
 OFFICIAL_AWARDS = ['cecil b. demille award', 
                     'best motion picture - drama',
                     'best performance by an actress in a motion picture - drama',
@@ -147,6 +148,7 @@ def get_winner(tweets):
     ##Going to try individually for awards, hard to generalize
     winners = {}
     
+    
     condenseAwards = ['cecil demille award',
                         'best motion picture drama',
                         'best performace actress drama',
@@ -178,12 +180,15 @@ def get_winner(tweets):
     corpus = tweets
     real_awards = OFFICIAL_AWARDS
     tknzr = RegexpTokenizer(r'\w+')
-    award_words = ['cecil', 'Cecil', 'award', 'Award', 'Movie', 'movie', 'best', 'motion picture', 'drama', 'performance', 'actress', 'actor', 'comedy', 'feature', 'film', 'foreign', 'language', 'musical', 'animated', 'supporting', 'role', 'director', 'screenplay', 'original', 'score', 'song', 'television', 'series', 'mini-series', 'miniseries', 'Best', 'Motion', 'picture', 'motion', 'Picture', 'Drama', 'Performance', 'Actress', 'Actor', 'Comedy', 'Feature', 'Film', 'Foreign', 'Language', 'Musical', 'Animated', 'Supporting', 'Role', 'Director', 'Screenplay', 'Original', 'Score', 'Song', 'Television', 'Series', 'Mini-series', 'Miniseries']
+    award_words = ['cecil', 'TV', 'Cecil', 'award', 'Award', 'Movie', 'movie', 'best', 'motion picture', 'drama', 'performance', 'actress', 'actor', 'comedy', 'feature', 'film', 'foreign', 'language', 'musical', 'animated', 'supporting', 'role', 'director', 'screenplay', 'original', 'score', 'song', 'television', 'series', 'mini-series', 'miniseries', 'Best', 'Motion', 'picture', 'motion', 'Picture', 'Drama', 'Performance', 'Actress', 'Actor', 'Comedy', 'Feature', 'Film', 'Foreign', 'Language', 'Musical', 'Animated', 'Supporting', 'Role', 'Director', 'Screenplay', 'Original', 'Score', 'Song', 'Television', 'Series', 'Mini-series', 'Miniseries']
     nominee = ['nominee', 'nominees', 'Nominees', 'Nominee']
     filteredTweets = []
+    filteredTweetsTV = []
+    TVtweets = ['TV']
     award_stopwords = ['by', 'an', 'in', 'a', 'or', 'made', 'for', 'best']
     for tweet in corpus:
         if len(set(award_words).intersection(set(tweet))) >= 2:
+            #Not using this part yet
             if len(set(nominee).intersection(set(tweet))) >= 0:
                 index = 0
                 try:
@@ -194,9 +199,14 @@ def get_winner(tweets):
                     tweet = tweet[0:index]
                 #print (tweet)
                 filteredTweets.append(tweet)
+                if len(set(TVtweets).intersection(set(tweet))) >= 1:
+                    filteredTweetsTV.append(tweet)
+
+
                     
 
     peopleAwards = ['director', 'actor', 'actress', 'cecil', 'Director', 'Actor', 'Actress', 'Cecil']
+    TvAwards = ['TV']
     ignore = ['Nshowbiz', 'Best', 'Q','W','E','R','T','Y','U','I','O','P','A','S','D','F','G','H','J','K','L','Z','X','C','V','B','N','M']
     #award_words.extend(ignore)
     for award in condenseAwards:
@@ -231,7 +241,6 @@ def get_winner(tweets):
             print (awardWinner)
         else:
             for tweet in filteredTweets:
-                
                 if len(set(award_parse).intersection(set(tweet))) >= key - 1:
                     #print(award_parse)
                     #tweet[:] = [x for x in tweet if x not in ignore]
@@ -294,7 +303,7 @@ def main():
     what it returns.'''
     # Your code here
     
-    parse = parsing('gg2015.json')
+    parse = parsing('gg2013.json')
     print (get_hosts(parse))
     get_winner(parse)
     #get_nominees(parse)
