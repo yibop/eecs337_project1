@@ -185,6 +185,7 @@ def get_winner(tweets):
     filteredTweets = []
     filteredTweetsTV = []
     TVtweets = ['TV']
+    debug = ['best', 'performance', 'actor', 'drama']
     award_stopwords = ['by', 'an', 'in', 'a', 'or', 'made', 'for', 'best']
     for tweet in corpus:
         if len(set(award_words).intersection(set(tweet))) >= 2:
@@ -215,14 +216,17 @@ def get_winner(tweets):
         key = len(award_parse)
         if len(set(peopleAwards).intersection(set(award_parse))) >= 1:
             for tweet in filteredTweets:
-                
+                if 'TV' in award_parse and 'TV' not in tweet:
+                    continue
                 if len(set(award_parse).intersection(set(tweet))) >= key - 1:
                     #print(award_parse)
                     #tweet[:] = [x for x in tweet if x not in ignore]
-                    tweetText = ""
+                    tweetText = "best performace actor drama"
                     for w in tweet:
                         tweetText += w + " "
                     #print (tweetText)
+                    if award == '':
+                        print (tweetText)
 
 
                     regex_match = re.findall("[A-Z][a-z]* [A-Z][a-z]*", tweetText)
@@ -241,6 +245,8 @@ def get_winner(tweets):
             print (awardWinner)
         else:
             for tweet in filteredTweets:
+                if 'TV' in award_parse and 'TV' not in tweet:
+                    continue
                 if len(set(award_parse).intersection(set(tweet))) >= key - 1:
                     #print(award_parse)
                     #tweet[:] = [x for x in tweet if x not in ignore]
@@ -303,8 +309,8 @@ def main():
     what it returns.'''
     # Your code here
     
-    parse = parsing('gg2013.json')
-    print (get_hosts(parse))
+    parse = parsing('gg2015.json')
+    #print (get_hosts(parse))
     get_winner(parse)
     #get_nominees(parse)
     
@@ -318,7 +324,7 @@ def parsing(filename):
 
     #If you want to remove stop words, do so inside the function call
     #stop_words = stopwords.words('english')
-    stop_words =['RT', 'CNNshowbiz', 'http', 'Golden', 'Globes', 'GoldenGlobes', 'gg','golden globes', 'golden globe', 'goldenglobe','goldenglobes','gg2015','gg15','goldenglobe2015','goldenglobe15','goldenglobes2015','goldenglobes15', 'gg2013','gg13','goldenglobe2013','goldenglobe13','goldenglobes2013','goldenglobes13', 'rt' ]
+    stop_words =['The', 'Variety', 'This', 'Globe', 'RT', 'CNNshowbiz', 'http', 'Golden', 'Globes', 'GoldenGlobes', 'gg','golden globes', 'golden globe', 'goldenglobe','goldenglobes','gg2015','gg15','goldenglobe2015','goldenglobe15','goldenglobes2015','goldenglobes15', 'gg2013','gg13','goldenglobe2013','goldenglobe13','goldenglobes2013','goldenglobes13', 'rt' ]
     #stop_words.extend(track)
     tknzr = RegexpTokenizer(r'\w+')
 
