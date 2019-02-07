@@ -218,6 +218,14 @@ def get_winner(tweets):
             for tweet in filteredTweets:
                 if 'TV' in award_parse and 'TV' not in tweet:
                     continue
+                if 'TV' not in award_parse and 'TV' in tweet:
+                    continue
+                if 'actor' in award_parse and 'actor' not in tweet:
+                    continue
+                if 'actress' in award_parse and 'actress' not in tweet:
+                    continue
+                if 'supporting' in award_parse and 'supporting' not in tweet:
+                    continue
                 if len(set(award_parse).intersection(set(tweet))) >= key - 1:
                     #print(award_parse)
                     #tweet[:] = [x for x in tweet if x not in ignore]
@@ -246,6 +254,12 @@ def get_winner(tweets):
         else:
             for tweet in filteredTweets:
                 if 'TV' in award_parse and 'TV' not in tweet:
+                    continue
+                if 'TV' not in award_parse and 'TV' in tweet:
+                    continue
+                if 'score' in award_parse and 'score' not in tweet:
+                    continue
+                if 'screenplay' in award_parse and 'screenplay' not in tweet:
                     continue
                 if len(set(award_parse).intersection(set(tweet))) >= key - 1:
                     #print(award_parse)
@@ -309,7 +323,7 @@ def main():
     what it returns.'''
     # Your code here
     
-    parse = parsing('gg2015.json')
+    parse = parsing('gg2013.json')
     #print (get_hosts(parse))
     get_winner(parse)
     #get_nominees(parse)
