@@ -3,11 +3,13 @@
 import json
 import nltk
 import re
+import itertools
 from heapq import nlargest
-nltk.download('stopwords')
+#nltk.download('stopwords')
 from nltk.tokenize import RegexpTokenizer
 from nltk.corpus import stopwords
 from difflib import SequenceMatcher
+
 
 
 
@@ -90,7 +92,7 @@ def get_awards(tweets):
         data = json.load(data_file)
 
     #stop_words = stopwords.words('english')
-    stop_words =['The', 'Variety', 'This', 'Globe', 'RT', 'CNNshowbiz', 'http', 'Golden', 'Globes', 'GoldenGlobes', 'gg','golden globes', 'golden globe', 'goldenglobe','goldenglobes','gg2015','gg15','goldenglobe2015','goldenglobe15','goldenglobes2015','goldenglobes15', 'gg2013','gg13','goldenglobe2013','goldenglobe13','goldenglobes2013','goldenglobes13', 'rt', '2013', '2015' ]
+    stop_words =['The', 'Variety', 'This', 'Globe', 'RT', 'CNNshowbiz', 'http', 'Golden', 'Globes', 'GoldenGlobes', 'Goldenglobes', 'Goldenglobe', 'gg','golden globes', 'golden globe', 'goldenglobe','goldenglobes','gg2015','gg15','goldenglobe2015','goldenglobe15','goldenglobes2015','goldenglobes15', 'gg2013','gg13','goldenglobe2013','goldenglobe13','goldenglobes2013','goldenglobes13', 'rt', '2013', '2015' ]
 
     tknzr = RegexpTokenizer(r'\w+')
 
@@ -117,7 +119,7 @@ def get_awards(tweets):
 
 
     prev_ID = 1
-    temp_awards = []
+    temp_awards = {}
     count = 0
     for tweet in corpus:
         for endWord in end_words:
@@ -138,8 +140,11 @@ def get_awards(tweets):
                         award = award.replace(w, '')
         
                 if (len(words) >= 4) :
-                    temp_awards.append(award)
-                    #print(award)
+                    if endWord not in temp_awards:
+                        temp_awards[endWord] = [award]
+                    else:
+                        temp_awards[endWord].append(award)
+                        #print(award)
                     count = count + 1
 
 
@@ -149,18 +154,97 @@ def get_awards(tweets):
     This step takes too long. A potential fix is to group the entries in the temp_award based on end_words.
     And Calculate similarity within each group
     '''
+
+    '''
+    #k = 0
+    #for k in temp_awards:
+    k = 'Motion Picture'
     sim_dic = {}
     i = 0
-    while i < len(temp_awards):
-        tweet1 = temp_awards[i]
+    while i < len(temp_awards[k]):
+        tweet1 = temp_awards[k][i]
         j = i + 1
         print (i)
-        while j < len(temp_awards):
-            tweet2 = temp_awards[j]
+        while j < len(temp_awards[k]):
+            tweet2 = temp_awards[k][j]
             sim = SequenceMatcher(None, tweet1, tweet2).ratio()
             #print (i)
             #print (sim)
-            if sim > 0.85:
+
+            
+            if sim > 0.85:   
+                if tweet1 in sim_dic:
+                    sim_dic[tweet1] = sim_dic[tweet1]+ 1
+                else:
+                    sim_dic[tweet1] = 1
+
+                if tweet2 in sim_dic:
+                    sim_dic[tweet2] = sim_dic[tweet2]+ 1
+                else:
+                    sim_dic[tweet2] = 1
+              
+            
+            if tweet1 in sim_dic:
+                sim_dic[tweet1][1] = sim_dic[tweet1][1] + 1
+                sim_dic[tweet1][0] = (sim_dic[tweet1][0] + sim) / sim_dic[tweet1][1]
+            else:
+                temp_tup = [sim,1]
+                sim_dic[tweet1] = temp_tup
+
+            if tweet2 in sim_dic:
+                sim_dic[tweet2][1] = sim_dic[tweet2][1] + 1
+                sim_dic[tweet2][0] = (sim_dic[tweet2][0] + sim) / sim_dic[tweet2][1]
+            else:
+                temp_tup = [sim,1]
+                sim_dic[tweet2] = temp_tup
+            
+                
+
+            j = j + 1
+        i = i + 1 
+
+        '''
+    awards = []
+    for k in temp_awards:
+        dic = {}
+        p = 0
+        while p < len(temp_awards[k]):
+            tweet = temp_awards[k][p]
+            if tweet in dic:
+                dic[tweet] = dic[tweet] + 1
+            else:
+                dic[tweet] = 1
+            p = p+1
+
+        dic = sorted(dic.items(), key=lambda x:x[1], reverse = True)
+        #stackoverflow.com/questions/16772071/sort-dic-by-value-python
+
+        dic = dic[:15]
+        
+        '''
+        i = 0
+        while i < len(dic):
+            tweet1 = dic
+            j = i + 1
+            print (i)
+            while j < len(temp_awards[k]):
+                tweet2 = temp_awards[k][j]
+                sim = SequenceMatcher(None, tweet1, tweet2).ratio()
+                #print (i)
+                #print (sim)
+
+                
+                if sim > 0.85:   
+                    if tweet1 in sim_dic:
+                        sim_dic[tweet1] = sim_dic[tweet1]+ 1
+                    else:
+                        sim_dic[tweet1] = 1
+
+                    if tweet2 in sim_dic:
+                        sim_dic[tweet2] = sim_dic[tweet2]+ 1
+                    else:
+                        sim_dic[tweet2] = 1
+                
                 
                 if tweet1 in sim_dic:
                     sim_dic[tweet1][1] = sim_dic[tweet1][1] + 1
@@ -176,13 +260,21 @@ def get_awards(tweets):
                     temp_tup = [sim,1]
                     sim_dic[tweet2] = temp_tup
                 
+                    
 
-            j = j + 1
-        i = i + 1 
+                j = j + 1
+            i = i + 1 
+            '''
+        
+        awards.append(dic)
+
     
-    print (sorted(sim_dic, key = sim_dic.get, reverse = True))
-    print (count)
-    awards = sorted(sim_dic, key = sim_dic.get, reverse = True)
+
+
+    
+    #print (sorted(sim_dic.items(), key=lambda x:x[1], reverse = True))
+    #print (count)
+    #awards = sorted(sim_dic, key = sim_dic.get, reverse = True)
 
     return awards
 
@@ -430,7 +522,7 @@ def main():
     
     parse = parsing('gg2013.json')
     #print (get_hosts(parse))
-    get_winner(parse)
+    #get_winner(parse)
     get_awards('gg2013.json')
     #get_nominees(parse)
     
