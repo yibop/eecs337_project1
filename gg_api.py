@@ -7,6 +7,7 @@ from heapq import nlargest
 nltk.download('stopwords')
 from nltk.tokenize import RegexpTokenizer
 from nltk.corpus import stopwords
+from difflib import SequenceMatcher
 
 
 
@@ -79,6 +80,110 @@ def get_awards(tweets):
     '''Awards is a list of strings. Do NOT change the name
     of this function or what it returns.'''
     # Your code here
+
+    end_words = ['Drama', 'Musical', 'Film', 'Television', 'Motion Picture']
+    key_words = end_words + ['performance', 'comedy', 'series', 'role', 'Performance', 'Comedy', 'Series', 'Role']
+
+    # Parsing 
+
+    with open(tweets) as data_file:
+        data = json.load(data_file)
+
+    #stop_words = stopwords.words('english')
+    stop_words =['The', 'Variety', 'This', 'Globe', 'RT', 'CNNshowbiz', 'http', 'Golden', 'Globes', 'GoldenGlobes', 'gg','golden globes', 'golden globe', 'goldenglobe','goldenglobes','gg2015','gg15','goldenglobe2015','goldenglobe15','goldenglobes2015','goldenglobes15', 'gg2013','gg13','goldenglobe2013','goldenglobe13','goldenglobes2013','goldenglobes13', 'rt', '2013', '2015' ]
+
+    tknzr = RegexpTokenizer(r'\w+')
+
+    word_list = []
+    word_dic = {}
+    
+    for tweet in data:
+        text = tweet['text']
+        id = tweet['id']
+
+        '''  
+        words = tknzr.tokenize(text)
+        for w in words:
+            if w in stop_words:
+                words.remove(w)
+        word_list.append(words)
+        '''
+
+        word_list.append((text,id))
+
+    corpus = word_list
+
+    # End of Parsing
+
+
+    prev_ID = 1
+    temp_awards = []
+    count = 0
+    for tweet in corpus:
+        for endWord in end_words:
+            # Extract the segment between 'Best' and one of the end_words
+            match = re.search(r'(?<=\sBest).*(?='+ endWord +')', tweet[0], re.IGNORECASE)
+            if match:
+                award = 'Best'+ match.group(0) + endWord
+
+                # Remove duplicate segments from the same teweet
+                if prev_ID == tweet[1]:
+                    continue
+                prev_ID = tweet[1]
+
+                # Remove stopwords from the segment
+                words = tknzr.tokenize(award)
+                for w in words:
+                    if w in stop_words:
+                        award = award.replace(w, '')
+        
+                if (len(words) >= 4) :
+                    temp_awards.append(award)
+                    #print(award)
+                    count = count + 1
+
+
+    '''
+    Calculate the similarity ratio between each two elements in the temp_award list. Select the elements
+    with the highest average similarity ratio.
+    This step takes too long. A potential fix is to group the entries in the temp_award based on end_words.
+    And Calculate similarity within each group
+    '''
+    sim_dic = {}
+    i = 0
+    while i < len(temp_awards):
+        tweet1 = temp_awards[i]
+        j = i + 1
+        print (i)
+        while j < len(temp_awards):
+            tweet2 = temp_awards[j]
+            sim = SequenceMatcher(None, tweet1, tweet2).ratio()
+            #print (i)
+            #print (sim)
+            if sim > 0.85:
+                
+                if tweet1 in sim_dic:
+                    sim_dic[tweet1][1] = sim_dic[tweet1][1] + 1
+                    sim_dic[tweet1][0] = (sim_dic[tweet1][0] + sim) / sim_dic[tweet1][1]
+                else:
+                    temp_tup = [sim,1]
+                    sim_dic[tweet1] = temp_tup
+
+                if tweet2 in sim_dic:
+                    sim_dic[tweet2][1] = sim_dic[tweet2][1] + 1
+                    sim_dic[tweet2][0] = (sim_dic[tweet2][0] + sim) / sim_dic[tweet2][1]
+                else:
+                    temp_tup = [sim,1]
+                    sim_dic[tweet2] = temp_tup
+                
+
+            j = j + 1
+        i = i + 1 
+    
+    print (sorted(sim_dic, key = sim_dic.get, reverse = True))
+    print (count)
+    awards = sorted(sim_dic, key = sim_dic.get, reverse = True)
+
     return awards
 
 def get_nominees(tweets):
@@ -326,6 +431,7 @@ def main():
     parse = parsing('gg2013.json')
     #print (get_hosts(parse))
     get_winner(parse)
+    get_awards('gg2013.json')
     #get_nominees(parse)
     
 
