@@ -13,32 +13,57 @@ from difflib import SequenceMatcher
 
 
 
-OFFICIAL_AWARDS = ['cecil b. demille award', 
-                    'best motion picture - drama',
-                    'best performance by an actress in a motion picture - drama',
-                    'best performance by an actor in a motion picture - drama',
-                    'best motion picture - comedy or musical', 
-                    'best performance by an actress in a motion picture - comedy or musical',
-                    'best performance by an actor in a motion picture - comedy or musical',
-                    'best animated feature film',
-                    'best foreign language film',
-                    'best performance by an actress in a supporting role in a motion picture',
-                    'best performance by an actor in a supporting role in a motion picture',
-                    'best director - motion picture',
-                    'best screenplay - motion picture',
-                    'best original score - motion picture',
-                    'best original song - motion picture',
-                    'best television series - drama',
-                    'best performance by an actress in a television series - drama',
-                    'best performance by an actor in a television series - drama',
-                    'best television series - comedy or musical',
-                    'best performance by an actress in a television series - comedy or musical',
-                    'best performance by an actor in a television series - comedy or musical',
-                    'best mini-series or motion picture made for television',
-                    'best performance by an actress in a mini-series or motion picture made for television',
-                    'best performance by an actor in a mini-series or motion picture made for television',
-                    'best performance by an actress in a supporting role in a series, mini-series or motion picture made for television',
-                    'best performance by an actor in a supporting role in a series, mini-series or motion picture made for television']
+OFFICIAL_AWARDS_1315 = ['cecil b. demille award', 
+                        'best motion picture - drama', 
+                        'best performance by an actress in a motion picture - drama', 
+                        'best performance by an actor in a motion picture - drama', 
+                        'best motion picture - comedy or musical', 
+                        'best performance by an actress in a motion picture - comedy or musical', 
+                        'best performance by an actor in a motion picture - comedy or musical', 
+                        'best animated feature film', 'best foreign language film', 
+                        'best performance by an actress in a supporting role in a motion picture', 
+                        'best performance by an actor in a supporting role in a motion picture', 
+                        'best director - motion picture', 
+                        'best screenplay - motion picture', 
+                        'best original score - motion picture', 
+                        'best original song - motion picture', 
+                        'best television series - drama', 
+                        'best performance by an actress in a television series - drama', 
+                        'best performance by an actor in a television series - drama', 
+                        'best television series - comedy or musical', 
+                        'best performance by an actress in a television series - comedy or musical', 
+                        'best performance by an actor in a television series - comedy or musical', 
+                        'best mini-series or motion picture made for television', 
+                        'best performance by an actress in a mini-series or motion picture made for television', 
+                        'best performance by an actor in a mini-series or motion picture made for television', 
+                        'best performance by an actress in a supporting role in a series, mini-series or motion picture made for television', 
+                        'best performance by an actor in a supporting role in a series, mini-series or motion picture made for television']
+OFFICIAL_AWARDS_1819 = ['best motion picture - drama', 
+                        'best motion picture - musical or comedy', 
+                        'best performance by an actress in a motion picture - drama', 
+                        'best performance by an actor in a motion picture - drama', 
+                        'best performance by an actress in a motion picture - musical or comedy', 
+                        'best performance by an actor in a motion picture - musical or comedy', 
+                        'best performance by an actress in a supporting role in any motion picture', 
+                        'best performance by an actor in a supporting role in any motion picture', 
+                        'best director - motion picture', 
+                        'best screenplay - motion picture', 
+                        'best motion picture - animated', 
+                        'best motion picture - foreign language', 
+                        'best original score - motion picture', 
+                        'best original song - motion picture', 
+                        'best television series - drama', 
+                        'best television series - musical or comedy', 
+                        'best television limited series or motion picture made for television', 
+                        'best performance by an actress in a limited series or a motion picture made for television', 
+                        'best performance by an actor in a limited series or a motion picture made for television', 
+                        'best performance by an actress in a television series - drama', 
+                        'best performance by an actor in a television series - drama', 
+                        'best performance by an actress in a television series - musical or comedy',
+                        'best performance by an actor in a television series - musical or comedy', 
+                        'best performance by an actress in a supporting role in a series, limited series or motion picture made for television', 
+                        'best performance by an actor in a supporting role in a series, limited series or motion picture made for television',
+                        'cecil b. demille award']
 
 
 # Finds either a single host or 2 hosts (cohosts) in a list of strings
@@ -345,6 +370,7 @@ def get_winner(tweets):
     ##Going to try individually for awards, hard to generalize
     winners = {}
     
+    #Need to make new condensed awards list
     
     condenseAwards = ['cecil demille award',
                         'best motion picture drama',
@@ -373,9 +399,11 @@ def get_winner(tweets):
                         'actress supporting TV series',
                         'actor supporting TV series']
 
+    award_stopList = ['drama', '-', 'by', 'an', 'a', 'in', 'made', 'for', 'role', 'or', 'b.', 'series,', 'performance', 'best']
+
     personName = {}
     corpus = tweets
-    real_awards = OFFICIAL_AWARDS
+    real_awards = OFFICIAL_AWARDS_1315
     tknzr = RegexpTokenizer(r'\w+')
     award_words = ['cecil', 'TV', 'Cecil', 'award', 'Award', 'Movie', 'movie', 'best', 'motion picture', 'drama', 'performance', 'actress', 'actor', 'comedy', 'feature', 'film', 'foreign', 'language', 'musical', 'animated', 'supporting', 'role', 'director', 'screenplay', 'original', 'score', 'song', 'television', 'series', 'mini-series', 'miniseries', 'Best', 'Motion', 'picture', 'motion', 'Picture', 'Drama', 'Performance', 'Actress', 'Actor', 'Comedy', 'Feature', 'Film', 'Foreign', 'Language', 'Musical', 'Animated', 'Supporting', 'Role', 'Director', 'Screenplay', 'Original', 'Score', 'Song', 'Television', 'Series', 'Mini-series', 'Miniseries']
     nominee = ['nominee', 'nominees', 'Nominees', 'Nominee']
@@ -407,11 +435,26 @@ def get_winner(tweets):
     TvAwards = ['TV']
     ignore = ['Nshowbiz', 'Best', 'Q','W','E','R','T','Y','U','I','O','P','A','S','D','F','G','H','J','K','L','Z','X','C','V','B','N','M']
     #award_words.extend(ignore)
-    REAL_Awards = OFFICIAL_AWARDS
     count = 0
-    for award in condenseAwards:
+    for award in real_awards:
         personName = {}
         award_parse = award.split(' ')
+        for stop in award_stopList:
+            while stop in award_parse:
+                award_parse.remove(stop)
+        if 'television' in award_parse:
+            award_parse.remove('television')
+            award_parse.append('TV')
+        if 'mini-series' in award_parse:
+            award_parse.remove('mini-series')
+            award_parse.append('series')
+        if len(award_parse) >=5:
+            while 'motion' in award_parse:
+                award_parse.remove('motion')
+            while 'picture' in award_parse:
+                award_parse.remove('picture')
+
+        print (award_parse)
         key = len(award_parse)
         if len(set(peopleAwards).intersection(set(award_parse))) >= 1:
             for tweet in filteredTweets:
@@ -448,7 +491,7 @@ def get_winner(tweets):
                                 update = {match : num}
                                 personName.update(update)
             awardWinner = nlargest(1, personName, key=personName.get)
-            winners[REAL_Awards[count]] = awardWinner
+            winners[real_awards[count]] = awardWinner
         else:
             for tweet in filteredTweets:
                 if 'TV' in award_parse and 'TV' not in tweet:
@@ -492,7 +535,7 @@ def get_winner(tweets):
                                 update = {match : num}
                                 personName.update(update)
             awardWinner = nlargest(1, personName, key=personName.get)
-            winners[REAL_Awards[count]] = awardWinner
+            winners[real_awards[count]] = awardWinner
         count = count + 1
 
     return winners
@@ -521,10 +564,10 @@ def main():
     what it returns.'''
     # Your code here
     
-    parse = parsing('gg2013.json')
+    parse = parsing('gg2015.json')
     #print (get_hosts(parse))
     print (get_winner(parse))
-    get_awards('gg2013.json')
+    print (get_awards('gg2013.json'))
     #get_nominees(parse)
     
 
