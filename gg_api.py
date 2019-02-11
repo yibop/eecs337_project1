@@ -142,7 +142,6 @@ def get_awards(tweets):
 
     # End of Parsing
 
-
     prev_ID = 1
     temp_awards = {}
     count = 0
@@ -174,13 +173,6 @@ def get_awards(tweets):
 
 
     '''
-    Calculate the similarity ratio between each two elements in the temp_award list. Select the elements
-    with the highest average similarity ratio.
-    This step takes too long. A potential fix is to group the entries in the temp_award based on end_words.
-    And Calculate similarity within each group
-    '''
-
-    '''
     #k = 0
     #for k in temp_awards:
     k = 'Motion Picture'
@@ -195,8 +187,6 @@ def get_awards(tweets):
             sim = SequenceMatcher(None, tweet1, tweet2).ratio()
             #print (i)
             #print (sim)
-
-            
             if sim > 0.85:   
                 if tweet1 in sim_dic:
                     sim_dic[tweet1] = sim_dic[tweet1]+ 1
@@ -207,8 +197,6 @@ def get_awards(tweets):
                     sim_dic[tweet2] = sim_dic[tweet2]+ 1
                 else:
                     sim_dic[tweet2] = 1
-              
-            
             if tweet1 in sim_dic:
                 sim_dic[tweet1][1] = sim_dic[tweet1][1] + 1
                 sim_dic[tweet1][0] = (sim_dic[tweet1][0] + sim) / sim_dic[tweet1][1]
@@ -222,14 +210,12 @@ def get_awards(tweets):
             else:
                 temp_tup = [sim,1]
                 sim_dic[tweet2] = temp_tup
-            
-                
-
             j = j + 1
         i = i + 1 
 
         '''
-    awards = []
+    
+    result = []
     for k in temp_awards:
         dic = {}
         p = 0
@@ -241,62 +227,65 @@ def get_awards(tweets):
                 dic[tweet] = 1
             p = p+1
 
-        dic = sorted(dic.items(), key=lambda x:x[1], reverse = True)
+        dic_list= sorted(dic.items(), key=lambda x:x[1], reverse = True)
         #stackoverflow.com/questions/16772071/sort-dic-by-value-python
 
-        dic = dic[:15]
+        # dic_list is acutally a list of tuple!!!!!
+        dic_list = dic_list[:15]
+        #print (dic)
+        #print ('\n\n')
+
+        award_list = []
         
-        '''
+        for item in dic_list:
+            award_list.append(item[0])
+        
+        
+        #print (award_list)
+
+        remove_list = []
+
         i = 0
-        while i < len(dic):
-            tweet1 = dic
+        for tweet1 in award_list:
             j = i + 1
-            print (i)
-            while j < len(temp_awards[k]):
-                tweet2 = temp_awards[k][j]
+
+            while j < len(award_list):
+                tweet2 = award_list[j]
                 sim = SequenceMatcher(None, tweet1, tweet2).ratio()
-                #print (i)
-                #print (sim)
 
-                
-                if sim > 0.85:   
-                    if tweet1 in sim_dic:
-                        sim_dic[tweet1] = sim_dic[tweet1]+ 1
+                if sim > 0.85 and (('actor' not in tweet1 and 'actor' not in tweet2) or ('actress' not in tweet2 and 'actress' not in tweet1)):
+                    if (dic[tweet1] > dic[tweet2]):
+                        #award_list.remove(tweet2)
+                        remove_list.append(tweet2)
                     else:
-                        sim_dic[tweet1] = 1
-
-                    if tweet2 in sim_dic:
-                        sim_dic[tweet2] = sim_dic[tweet2]+ 1
-                    else:
-                        sim_dic[tweet2] = 1
-                
-                
-                if tweet1 in sim_dic:
-                    sim_dic[tweet1][1] = sim_dic[tweet1][1] + 1
-                    sim_dic[tweet1][0] = (sim_dic[tweet1][0] + sim) / sim_dic[tweet1][1]
-                else:
-                    temp_tup = [sim,1]
-                    sim_dic[tweet1] = temp_tup
-
-                if tweet2 in sim_dic:
-                    sim_dic[tweet2][1] = sim_dic[tweet2][1] + 1
-                    sim_dic[tweet2][0] = (sim_dic[tweet2][0] + sim) / sim_dic[tweet2][1]
-                else:
-                    temp_tup = [sim,1]
-                    sim_dic[tweet2] = temp_tup
-                
-                    
+                        #award_list.remove(tweet1)
+                        remove_list.append(tweet1)
 
                 j = j + 1
-            i = i + 1 
-            '''
+            i = i + 1
         
-        awards.append(dic)
-
+        remove_list = set(remove_list)
+        for tweet in award_list:
+            if tweet in remove_list:
+                award_list.remove(tweet)
+        
+        
+        #print (award_list)
+        #print ('\n\n')
+        result.append(award_list)
     
+    result[0] = result[0][:6]
+    result[1] = result[1][:6]
+    result[2] = result[2][:5]
+    result[3] = result[3][:6]
+    result[4] = result[4][:2]
 
+    awards = []
+    for i in result:
+        for j in i:
+            print (j.lower())
+            awards.append(j.lower())
 
-    
     #print (sorted(sim_dic.items(), key=lambda x:x[1], reverse = True))
     #print (count)
     #awards = sorted(sim_dic, key = sim_dic.get, reverse = True)
