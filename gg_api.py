@@ -67,12 +67,14 @@ OFFICIAL_AWARDS_1819 = ['best motion picture - drama',
 
 
 # Finds either a single host or 2 hosts (cohosts) in a list of strings
-def get_hosts(tweets):
+def get_hosts(year):
     '''Hosts is a list of one or more strings. Do NOT change the name
     of this function or what it returns.'''
     # Your code here
+    string = 'gg' + str(year) + '.json'
+    parse = parsing(string)
 
-    corpus = tweets
+    corpus = parse
 
     hostMentions = {}
 
@@ -103,7 +105,7 @@ def get_hosts(tweets):
     else:
         return [hosts[0]]
 
-def get_awards(tweets):
+def get_awards(year):
     '''Awards is a list of strings. Do NOT change the name
     of this function or what it returns.'''
     # Your code here
@@ -113,7 +115,10 @@ def get_awards(tweets):
 
     # Parsing 
 
-    with open(tweets) as data_file:
+    string = 'gg' + str(year) + '.json'
+    
+
+    with open(string) as data_file:
         data = json.load(data_file)
 
     #stop_words = stopwords.words('english')
@@ -292,19 +297,26 @@ def get_awards(tweets):
 
     return awards
 
-def get_nominees(tweets):
+def get_nominees(year):
     '''Nominees is a dictionary with the hard coded award
     names as keys, and each entry a list of strings. Do NOT change
     the name of this function or what it returns.'''
     # Your code here
     nominees = {}
 
-        
-        
+    string = 'gg' + str(year) + '.json'
+    parse = parsing(string)
+
+    corpus = parse
+    
+    # Use correct year tho
+    for award in OFFICIAL_AWARDS_1315:
+        nominees[award] = ['sample']
 
     return nominees
+        
 
-def get_winner(tweets):
+def get_winner(year):
     '''Winners is a dictionary with the hard coded award
     names as keys, and each entry containing a single string.
     Do NOT change the name of this function or what it returns.'''
@@ -391,7 +403,12 @@ def get_winner(tweets):
     award_stopList = ['drama', '-', 'by', 'an', 'a', 'in', 'made', 'for', 'role', 'or', 'b.', 'series,', 'performance', 'best']
 
     personName = {}
-    corpus = tweets
+    
+    string = 'gg' + str(year) + '.json'
+    parse = parsing(string)
+
+    corpus = parse
+
     real_awards = OFFICIAL_AWARDS_1315
     tknzr = RegexpTokenizer(r'\w+')
     award_words = ['cecil', 'TV', 'Cecil', 'award', 'Award', 'Movie', 'movie', 'best', 'motion picture', 'drama', 'performance', 'actress', 'actor', 'comedy', 'feature', 'film', 'foreign', 'language', 'musical', 'animated', 'supporting', 'role', 'director', 'screenplay', 'original', 'score', 'song', 'television', 'series', 'mini-series', 'miniseries', 'Best', 'Motion', 'picture', 'motion', 'Picture', 'Drama', 'Performance', 'Actress', 'Actor', 'Comedy', 'Feature', 'Film', 'Foreign', 'Language', 'Musical', 'Animated', 'Supporting', 'Role', 'Director', 'Screenplay', 'Original', 'Score', 'Song', 'Television', 'Series', 'Mini-series', 'Miniseries']
@@ -534,6 +551,17 @@ def get_presenters(year):
     names as keys, and each entry a list of strings. Do NOT change the
     name of this function or what it returns.'''
     # Your code here
+    presenters = {}
+
+    string = 'gg' + str(year) + '.json'
+    parse = parsing(string)
+
+    corpus = parse
+    
+    # Use correct year tho
+    for award in OFFICIAL_AWARDS_1315:
+        presenters[award] = ['sample']
+
     return presenters
 
 def pre_ceremony():
@@ -553,10 +581,10 @@ def main():
     what it returns.'''
     # Your code here
     
-    parse = parsing('gg2015.json')
+    #parse = parsing('gg2015.json')
     #print (get_hosts(parse))
-    print (get_winner(parse))
-    print (get_awards('gg2013.json'))
+    #print (get_winner(parse))
+    #print (get_awards('gg2013.json'))
     #get_nominees(parse)
     
 
