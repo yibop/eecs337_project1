@@ -227,7 +227,7 @@ def get_awards(tweets):
             tweet1 = dic
             j = i + 1
             print (i)
-            while j < len(temp_awards[k]):
+            while j < len(dic):
                 tweet2 = temp_awards[k][j]
                 sim = SequenceMatcher(None, tweet1, tweet2).ratio()
                 #print (i)
