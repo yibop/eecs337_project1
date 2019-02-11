@@ -407,6 +407,8 @@ def get_winner(tweets):
     TvAwards = ['TV']
     ignore = ['Nshowbiz', 'Best', 'Q','W','E','R','T','Y','U','I','O','P','A','S','D','F','G','H','J','K','L','Z','X','C','V','B','N','M']
     #award_words.extend(ignore)
+    REAL_Awards = OFFICIAL_AWARDS
+    count = 0
     for award in condenseAwards:
         personName = {}
         award_parse = award.split(' ')
@@ -446,8 +448,7 @@ def get_winner(tweets):
                                 update = {match : num}
                                 personName.update(update)
             awardWinner = nlargest(1, personName, key=personName.get)
-            print (award + " won by ")
-            print (awardWinner)
+            winners[REAL_Awards[count]] = awardWinner
         else:
             for tweet in filteredTweets:
                 if 'TV' in award_parse and 'TV' not in tweet:
@@ -491,8 +492,8 @@ def get_winner(tweets):
                                 update = {match : num}
                                 personName.update(update)
             awardWinner = nlargest(1, personName, key=personName.get)
-            print (award + " won by ")
-            print (awardWinner)
+            winners[REAL_Awards[count]] = awardWinner
+        count = count + 1
 
     return winners
 
@@ -522,7 +523,7 @@ def main():
     
     parse = parsing('gg2013.json')
     #print (get_hosts(parse))
-    #get_winner(parse)
+    print (get_winner(parse))
     get_awards('gg2013.json')
     #get_nominees(parse)
     
