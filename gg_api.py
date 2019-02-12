@@ -497,7 +497,7 @@ def get_winner(year):
                                 update = {match : num}
                                 personName.update(update)
             awardWinner = nlargest(1, personName, key=personName.get)
-            winners[real_awards[count]] = awardWinner
+            winners[real_awards[count]] = awardWinner[0]
         else:
             for tweet in filteredTweets:
                 if 'TV' in award_parse and 'TV' not in tweet:
@@ -541,7 +541,7 @@ def get_winner(year):
                                 update = {match : num}
                                 personName.update(update)
             awardWinner = nlargest(1, personName, key=personName.get)
-            winners[real_awards[count]] = awardWinner
+            winners[real_awards[count]] = awardWinner[0]
         count = count + 1
 
     return winners
