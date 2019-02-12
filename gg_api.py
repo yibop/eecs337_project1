@@ -78,8 +78,6 @@ def get_hosts(year):
 
     hostMentions = {}
 
-
-
     for tweet in corpus:
         if 'monologue' in tweet:
             word = ""
@@ -439,7 +437,7 @@ def get_winner(year):
 
     peopleAwards = ['director', 'actor', 'actress', 'cecil', 'Director', 'Actor', 'Actress', 'Cecil']
     TvAwards = ['TV']
-    ignore = ['Nshowbiz', 'Best', 'Q','W','E','R','T','Y','U','I','O','P','A','S','D','F','G','H','J','K','L','Z','X','C','V','B','N','M']
+    ignore = ['Supporting', 'Actress', 'Actor', 'Series', 'Nshowbiz', 'Best', 'Q','W','E','R','T','Y','U','I','O','P','A','S','D','F','G','H','J','K','L','Z','X','C','V','B','N','M']
     #award_words.extend(ignore)
     count = 0
     for award in real_awards:
@@ -460,7 +458,7 @@ def get_winner(year):
             while 'picture' in award_parse:
                 award_parse.remove('picture')
 
-        print (award_parse)
+        #print (award_parse)
         key = len(award_parse)
         if len(set(peopleAwards).intersection(set(award_parse))) >= 1:
             for tweet in filteredTweets:
@@ -473,6 +471,8 @@ def get_winner(year):
                 if 'actress' in award_parse and 'actress' not in tweet:
                     continue
                 if 'supporting' in award_parse and 'supporting' not in tweet:
+                    continue
+                if 'director' in award_parse and 'director' not in tweet:
                     continue
                 if len(set(award_parse).intersection(set(tweet))) >= key - 1:
                     #print(award_parse)
@@ -497,6 +497,8 @@ def get_winner(year):
                                 update = {match : num}
                                 personName.update(update)
             awardWinner = nlargest(1, personName, key=personName.get)
+            print (awardWinner)
+            print (real_awards[count])
             winners[real_awards[count]] = awardWinner[0]
         else:
             for tweet in filteredTweets:
@@ -537,10 +539,12 @@ def get_winner(year):
                                 personName[match] = 1
                             else:
                                 num = personName.get(match)
-                                num = num + 1
+                                num = num + 1.1
                                 update = {match : num}
                                 personName.update(update)
             awardWinner = nlargest(1, personName, key=personName.get)
+            print (awardWinner)
+            print (real_awards[count])
             winners[real_awards[count]] = awardWinner[0]
         count = count + 1
 
@@ -564,6 +568,43 @@ def get_presenters(year):
 
     return presenters
 
+
+def get_bessedDressed(year):
+    '''Best Dressed is list of a strings. Do NOT change the name
+    of this function or what it returns.'''
+    # Your code here
+    string = 'gg' + str(year) + '.json'
+    parse = parsing(string)
+
+    corpus = parse
+
+    bestDressed = {}
+    
+    keys = ['best', 'dressed', 'Best', 'Dressed', 'Red', 'Carpet', 'red', 'carpet']
+
+    for tweet in corpus:
+        if len(set(tweet).intersection(set(keys))) == 4:
+            word = ""
+            tweet[:] = [x for x in tweet if x not in keys]
+            for w in tweet:
+                word += w + " "
+            regex_match = re.findall("[A-Z][a-z]* [A-Z][a-z]*", word)
+
+            for match in regex_match:
+                if not match in bestDressed:
+                    bestDressed[match] = 1
+                else:
+                    num = bestDressed.get(match)
+                    num = num + 1
+                    update = {match : num}
+                    bestDressed.update(update)
+    person = nlargest(1, bestDressed, key=bestDressed.get)
+    #print (bestDressed)
+    
+    return person
+
+
+
 def pre_ceremony():
     '''This function loads/fetches/processes any data your program
     will use, and stores that data in your DB or in a json, csv, or
@@ -581,13 +622,9 @@ def main():
     what it returns.'''
     # Your code here
     
-    #parse = parsing('gg2015.json')
-    #print (get_hosts(parse))
-    #print (get_winner(parse))
-    #print (get_awards('gg2013.json'))
-    #get_nominees(parse)
     
-
+    #get_winner(2015)
+    print (get_bessedDressed(2015))
     return
 
 
