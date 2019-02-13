@@ -115,9 +115,11 @@ def get_awards(year):
 
     string = 'gg' + str(year) + '.json'
     
-
-    with open(string) as data_file:
-        data = json.load(data_file)
+    try:
+        with open(string) as data_file:
+            data = json.load(data_file)
+    except:
+        pass
 
     #stop_words = stopwords.words('english')
     stop_words =['The', 'Variety', 'This', 'Globe', 'RT', 'CNNshowbiz', 'http', 'Golden', 'Globes', 'GoldenGlobes', 'Goldenglobes', 'Goldenglobe', 'gg','golden globes', 'golden globe', 'goldenglobe','goldenglobes','gg2015','gg15','goldenglobe2015','goldenglobe15','goldenglobes2015','goldenglobes15', 'gg2013','gg13','goldenglobe2013','goldenglobe13','goldenglobes2013','goldenglobes13', 'rt', '2013', '2015' ]
@@ -303,12 +305,20 @@ def get_nominees(year):
     nominees = {}
 
     string = 'gg' + str(year) + '.json'
-    parse = parsing(string)
+    try:
+        parse = parsing(string)
+    except:
+        pass
 
     corpus = parse
     
+    if year == 2013 or year == 2015:
+        real_awards = OFFICIAL_AWARDS_1315
+    else:
+        real_awards = OFFICIAL_AWARDS_1819
+
     # Use correct year tho
-    for award in OFFICIAL_AWARDS_1315:
+    for award in real_awards:
         nominees[award] = ['sample']
 
     return nominees
@@ -403,11 +413,16 @@ def get_winner(year):
     personName = {}
     
     string = 'gg' + str(year) + '.json'
-    parse = parsing(string)
+    try:
+        parse = parsing(string)
+    except:
+        pass
 
     corpus = parse
-
-    real_awards = OFFICIAL_AWARDS_1315
+    if year == 2013 or year == 2015:
+        real_awards = OFFICIAL_AWARDS_1315
+    else:
+        real_awards = OFFICIAL_AWARDS_1819
     tknzr = RegexpTokenizer(r'\w+')
     award_words = ['cecil', 'TV', 'Cecil', 'award', 'Award', 'Movie', 'movie', 'best', 'motion picture', 'drama', 'performance', 'actress', 'actor', 'comedy', 'feature', 'film', 'foreign', 'language', 'musical', 'animated', 'supporting', 'role', 'director', 'screenplay', 'original', 'score', 'song', 'television', 'series', 'mini-series', 'miniseries', 'Best', 'Motion', 'picture', 'motion', 'Picture', 'Drama', 'Performance', 'Actress', 'Actor', 'Comedy', 'Feature', 'Film', 'Foreign', 'Language', 'Musical', 'Animated', 'Supporting', 'Role', 'Director', 'Screenplay', 'Original', 'Score', 'Song', 'Television', 'Series', 'Mini-series', 'Miniseries']
     nominee = ['nominee', 'nominees', 'Nominees', 'Nominee']
@@ -472,12 +487,14 @@ def get_winner(year):
                     continue
                 if 'supporting' in award_parse and 'supporting' not in tweet:
                     continue
+                if 'supporting' not in award_parse and 'supporting' in tweet:
+                    continue
                 if 'director' in award_parse and 'director' not in tweet:
                     continue
                 if len(set(award_parse).intersection(set(tweet))) >= key - 1:
                     #print(award_parse)
                     #tweet[:] = [x for x in tweet if x not in ignore]
-                    tweetText = "best performace actor drama"
+                    tweetText = ""
                     for w in tweet:
                         tweetText += w + " "
                     #print (tweetText)
@@ -545,7 +562,10 @@ def get_winner(year):
             awardWinner = nlargest(1, personName, key=personName.get)
             print (awardWinner)
             print (real_awards[count])
-            winners[real_awards[count]] = awardWinner[0]
+            try:
+                winners[real_awards[count]] = awardWinner[0]
+            except:
+                winners[real_awards[count]] = ""
         count = count + 1
 
     return winners
@@ -558,32 +578,45 @@ def get_presenters(year):
     presenters = {}
 
     string = 'gg' + str(year) + '.json'
-    parse = parsing(string)
+    try:
+        parse = parsing(string)
+    except:
+        pass
 
     corpus = parse
     
+    if year == 2013 or year == 2015:
+        real_awards = OFFICIAL_AWARDS_1315
+    else:
+        real_awards = OFFICIAL_AWARDS_1819
+
     # Use correct year tho
-    for award in OFFICIAL_AWARDS_1315:
+    for award in real_awards:
         presenters[award] = ['sample']
 
     return presenters
 
 
-def get_bessedDressed(year):
+def get_bestDressed(year):
     '''Best Dressed is list of a strings. Do NOT change the name
     of this function or what it returns.'''
     # Your code here
+
     string = 'gg' + str(year) + '.json'
-    parse = parsing(string)
+    try:
+        parse = parsing(string)
+    except:
+        pass
 
     corpus = parse
 
     bestDressed = {}
     
-    keys = ['best', 'dressed', 'Best', 'Dressed', 'Red', 'Carpet', 'red', 'carpet']
+    keys = ['best', 'dressed', 'Best', 'Dressed', 'Red', 'Carpet', 'red', 'carpet', 'amazing', 'Amazing', 'dress', 'Dress', 'stunning', 'Stunning']
 
     for tweet in corpus:
-        if len(set(tweet).intersection(set(keys))) == 4:
+        if len(set(tweet).intersection(set(keys))) >= 4:
+            #print (tweet)
             word = ""
             tweet[:] = [x for x in tweet if x not in keys]
             for w in tweet:
@@ -600,6 +633,45 @@ def get_bessedDressed(year):
                     bestDressed.update(update)
     person = nlargest(1, bestDressed, key=bestDressed.get)
     #print (bestDressed)
+    
+    return person
+
+def get_worstDressed(year):
+    '''Best Dressed is list of a strings. Do NOT change the name
+    of this function or what it returns.'''
+    # Your code here
+    
+    string = 'gg' + str(year) + '.json'
+    try:
+        parse = parsing(string)
+    except:
+        pass
+
+    corpus = parse
+
+    worstDressed = {}
+    
+    keys = ['ugly', 'dress']
+
+    for tweet in corpus:
+        if len(set(tweet).intersection(set(keys))) >= 2:
+            #print (tweet)
+            word = ""
+            tweet[:] = [x for x in tweet if x not in keys]
+            for w in tweet:
+                word += w + " "
+            regex_match = re.findall("[A-Z][a-z]* [A-Z][a-z]*", word)
+
+            for match in regex_match:
+                if not match in worstDressed:
+                    worstDressed[match] = 1
+                else:
+                    num = worstDressed.get(match)
+                    num = num + 1
+                    update = {match : num}
+                    worstDressed.update(update)
+    person = nlargest(1, worstDressed, key=worstDressed.get)
+    #print (worstDressed)
     
     return person
 
@@ -622,9 +694,12 @@ def main():
     what it returns.'''
     # Your code here
     
+
     
     #get_winner(2015)
-    print (get_bessedDressed(2015))
+    print (get_worstDressed(2013))
+    print (get_bestDressed(2013))
+
     return
 
 
