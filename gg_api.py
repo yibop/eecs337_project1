@@ -303,7 +303,14 @@ def get_nominees(year):
     the name of this function or what it returns.'''
     # Your code here
     nominees = {}
+    
+    #Need to make new condensed awards list
+    
 
+    award_stopList = ['drama', '-', 'by', 'an', 'a', 'in', 'made', 'for', 'role', 'or', 'b.', 'series,', 'performance', 'best']
+
+    personName = {}
+    
     string = 'gg' + str(year) + '.json'
     try:
         parse = parsing(string)
@@ -311,16 +318,151 @@ def get_nominees(year):
         pass
 
     corpus = parse
-    
     if year == 2013 or year == 2015:
         real_awards = OFFICIAL_AWARDS_1315
     else:
         real_awards = OFFICIAL_AWARDS_1819
+    tknzr = RegexpTokenizer(r'\w+')
+    award_words = ['cecil', 'TV', 'Cecil', 'award', 'Award', 'Movie', 'movie', 'best', 'motion picture', 'drama', 'performance', 'actress', 'actor', 'comedy', 'feature', 'film', 'foreign', 'language', 'musical', 'animated', 'supporting', 'role', 'director', 'screenplay', 'original', 'score', 'song', 'television', 'series', 'mini-series', 'miniseries', 'Best', 'Motion', 'picture', 'motion', 'Picture', 'Drama', 'Performance', 'Actress', 'Actor', 'Comedy', 'Feature', 'Film', 'Foreign', 'Language', 'Musical', 'Animated', 'Supporting', 'Role', 'Director', 'Screenplay', 'Original', 'Score', 'Song', 'Television', 'Series', 'Mini-series', 'Miniseries']
+    nominee = ['nominee', 'nominees', 'Nominees', 'Nominee']
+    filteredTweets = []
+    filteredTweetsTV = []
+    TVtweets = ['TV']
+    debug = ['best', 'performance', 'actor', 'drama']
+    award_stopwords = ['by', 'an', 'in', 'a', 'or', 'made', 'for', 'best']
+    for tweet in corpus:
+        if len(set(award_words).intersection(set(tweet))) >= 2:
+            #Not using this part yet
+            if len(set(nominee).intersection(set(tweet))) >= 0:
+                index = 0
+                try:
+                    index = 0 #tweet.index('for')
+                except:
+                    index = 0
+                if index > 0:
+                    tweet = tweet[0:index]
+                #print (tweet)
+                filteredTweets.append(tweet)
+                if len(set(TVtweets).intersection(set(tweet))) >= 1:
+                    filteredTweetsTV.append(tweet)
 
-    # Use correct year tho
+
+                    
+
+    peopleAwards = ['director', 'actor', 'actress', 'cecil', 'Director', 'Actor', 'Actress', 'Cecil']
+    TvAwards = ['TV']
+    ignore = ['Supporting', 'Actress', 'Actor', 'Series', 'Nshowbiz', 'Best', 'Q','W','E','R','T','Y','U','I','O','P','A','S','D','F','G','H','J','K','L','Z','X','C','V','B','N','M']
+    #award_words.extend(ignore)
+    count = 0
     for award in real_awards:
-        nominees[award] = ['sample']
+        personName = {}
+        award_parse = award.split(' ')
+        for stop in award_stopList:
+            while stop in award_parse:
+                award_parse.remove(stop)
+        if 'television' in award_parse:
+            award_parse.remove('television')
+            award_parse.append('TV')
+        if 'mini-series' in award_parse:
+            award_parse.remove('mini-series')
+            award_parse.append('series')
+        if len(award_parse) >=5:
+            while 'motion' in award_parse:
+                award_parse.remove('motion')
+            while 'picture' in award_parse:
+                award_parse.remove('picture')
 
+        #print (award_parse)
+        key = len(award_parse)
+        if len(set(peopleAwards).intersection(set(award_parse))) >= 1:
+            for tweet in filteredTweets:
+                if 'TV' in award_parse and 'TV' not in tweet:
+                    continue
+                if 'TV' not in award_parse and 'TV' in tweet:
+                    continue
+                if 'actor' in award_parse and 'actor' not in tweet:
+                    continue
+                if 'actress' in award_parse and 'actress' not in tweet:
+                    continue
+                if 'supporting' in award_parse and 'supporting' not in tweet:
+                    continue
+                if 'supporting' not in award_parse and 'supporting' in tweet:
+                    continue
+                if 'director' in award_parse and 'director' not in tweet:
+                    continue
+                if len(set(award_parse).intersection(set(tweet))) >= key - 1:
+                    #print(award_parse)
+                    #tweet[:] = [x for x in tweet if x not in ignore]
+                    tweetText = ""
+                    for w in tweet:
+                        tweetText += w + " "
+                    #print (tweetText)
+                    if award == '':
+                        print (tweetText)
+
+
+                    regex_match = re.findall("[A-Z][a-z]* [A-Z][a-z]*", tweetText)
+
+                    for match in regex_match:
+                        if match not in ignore:
+                            if not match in personName:
+                                personName[match] = 1
+                            else:
+                                num = personName.get(match)
+                                num = num + 1
+                                update = {match : num}
+                                personName.update(update)
+            nomineeName = nlargest(5, personName, key=personName.get)
+            print (nomineeName)
+            print (real_awards[count])
+            nominees[real_awards[count]] = nomineeName
+        else:
+            for tweet in filteredTweets:
+                if 'TV' in award_parse and 'TV' not in tweet:
+                    continue
+                if 'TV' not in award_parse and 'TV' in tweet:
+                    continue
+                if 'score' in award_parse and 'score' not in tweet:
+                    continue
+                if 'screenplay' in award_parse and 'screenplay' not in tweet:
+                    continue
+                if len(set(award_parse).intersection(set(tweet))) >= key - 1:
+                    #print(award_parse)
+                    #tweet[:] = [x for x in tweet if x not in ignore]
+                    tweetText = ""
+                    for w in tweet:
+                        tweetText += w + " "
+                    #print (tweetText)
+
+
+                    regex_match = re.findall("[A-Z][a-z]*", tweetText)
+
+                    for match in regex_match:
+                        if match not in ignore:
+                            if not match in personName:
+                                personName[match] = 1
+                            else:
+                                num = personName.get(match)
+                                num = num + 1
+                                update = {match : num}
+                                personName.update(update)
+
+                    regex_match = re.findall("[A-Z][a-z]* [A-Z][a-z]*", tweetText)
+
+                    for match in regex_match:
+                        if match not in ignore:
+                            if not match in personName:
+                                personName[match] = 1
+                            else:
+                                num = personName.get(match)
+                                num = num + 1.1
+                                update = {match : num}
+                                personName.update(update)
+            nomineeName = nlargest(5, personName, key=personName.get)
+            print (nomineeName)
+            print (real_awards[count])
+            nominees[real_awards[count]] = nomineeName
+        count = count + 1
     return nominees
         
 
@@ -697,8 +839,8 @@ def main():
 
     
     #get_winner(2015)
-    print (get_worstDressed(2013))
-    print (get_bestDressed(2013))
+    print (get_nominees(2013))
+    #print (get_bestDressed(2013))
 
     return
 
